@@ -306,8 +306,12 @@ def _infer_turns_from_track(track_coords: np.ndarray) -> List[Dict]:
     tangents = np.diff(track_coords, axis=0)
     headings_deg = np.degrees(np.arctan2(tangents[:, 1], tangents[:, 0]))
     heading_changes = np.diff(headings_deg)
-    heading_changes = np.where(heading_changes > 180, heading_changes - 360, heading_changes)
-    heading_changes = np.where(heading_changes < -180, heading_changes + 360, heading_changes)
+    heading_changes = np.where(
+        heading_changes > 180, heading_changes - 360, heading_changes
+    )
+    heading_changes = np.where(
+        heading_changes < -180, heading_changes + 360, heading_changes
+    )
 
     abs_changes = np.abs(heading_changes)
     corner_indices = np.where(abs_changes > threshold_deg)[0] + 1
@@ -393,24 +397,40 @@ def compute_turns(
             if corners is not None and not corners.empty:
                 turns: List[Dict] = []
                 for _, row in corners.iterrows():
-                    number = int(row["Number"]) if not pd.isna(row.get("Number")) else len(turns) + 1
+                    number = (
+                        int(row["Number"])
+                        if not pd.isna(row.get("Number"))
+                        else len(turns) + 1
+                    )
                     name = f"Turn {number}"
                     turns.append(
                         {
                             "index": number,
                             "x": float(row["X"]),
                             "y": float(row["Y"]),
-                            "radius": float(row.get("Radius", np.nan)) if "Radius" in row else np.nan,
-                            "heading_change": float(row.get("Angle", np.nan)) if "Angle" in row else np.nan,
+                            "radius": (
+                                float(row.get("Radius", np.nan))
+                                if "Radius" in row
+                                else np.nan
+                            ),
+                            "heading_change": (
+                                float(row.get("Angle", np.nan))
+                                if "Angle" in row
+                                else np.nan
+                            ),
                             "name": name,
                         }
                     )
                 return turns
         except Exception as e:
-            print(f"Warning: Could not load circuit corner data, falling back to detection: {e}")
+            print(
+                f"Warning: Could not load circuit corner data, falling back to detection: {e}"
+            )
 
     # Fallback: heuristic detection from track geometry
-    return _infer_turns_from_track(track_coords if track_coords is not None else np.array([]))
+    return _infer_turns_from_track(
+        track_coords if track_coords is not None else np.array([])
+    )
 
 
 def compute_top_speeds(telemetry_dict: Dict[str, pd.DataFrame]) -> Dict:

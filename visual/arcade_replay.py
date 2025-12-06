@@ -289,6 +289,7 @@ class F1ReplayWindow(arcade.Window):
             # Draw driver dot
             dot_radius = 8 if driver_code == self.focused_driver else 6
             arcade.draw.draw_circle_filled(sx, sy, dot_radius, color)
+            arcade.draw.draw_circle_outline(sx, sy, dot_radius + 1, F1_DARK, 1)
 
             # Draw border for focused driver
             if driver_code == self.focused_driver:
@@ -301,7 +302,9 @@ class F1ReplayWindow(arcade.Window):
                 tyre_color = get_tyre_color(row["Compound"])
                 # Small square below the dot
                 # In Arcade 3.x use lbwh (left, bottom, width, height) for rectangles
-                arcade.draw.draw_lbwh_rectangle_filled(sx - 4, sy - 14, 8, 4, tyre_color)
+                arcade.draw.draw_lbwh_rectangle_filled(
+                    sx - 4, sy - 14, 8, 4, tyre_color
+                )
 
             # Draw telemetry overlay if enabled
             if self.show_telemetry and (
@@ -350,7 +353,11 @@ class F1ReplayWindow(arcade.Window):
         )
         # Accent strip
         arcade.draw.draw_lrbt_rectangle_filled(
-            0, self.width, self.height - 78, self.height, (F1_RED[0], F1_RED[1], F1_RED[2], 220)
+            0,
+            self.width,
+            self.height - 78,
+            self.height,
+            (F1_RED[0], F1_RED[1], F1_RED[2], 220),
         )
 
         # Session name
@@ -360,7 +367,7 @@ class F1ReplayWindow(arcade.Window):
             f"{session_name} - {session_type}",
             10,
             self.height - 25,
-            arcade.color.WHITE,
+            F1_RED,
             16,
             bold=True,
         )
@@ -425,13 +432,11 @@ class F1ReplayWindow(arcade.Window):
         # Legend background
         legend_height = len(self.driver_list) * 25 + 40
         arcade.draw.draw_lrbt_rectangle_filled(
-            legend_x, legend_x + 160, legend_y - legend_height, legend_y, (0, 0, 0, 200)
+            legend_x, legend_x + 160, legend_y - legend_height, legend_y, F1_PANEL
         )
 
         # Title
-        arcade.draw_text(
-            "Drivers", legend_x, legend_y, arcade.color.WHITE, 12, bold=True
-        )
+        arcade.draw_text("Drivers", legend_x, legend_y, F1_RED, 12, bold=True)
 
         legend_y -= 25
 
@@ -478,11 +483,13 @@ class F1ReplayWindow(arcade.Window):
         """Draw control instructions at the bottom."""
         controls_y = 30
 
+        arcade.draw.draw_lrbt_rectangle_filled(0, self.width, 0, 60, F1_PANEL)
+
         arcade.draw_text(
             "Controls: SPACE=Play/Pause | ←/→=Step | ↑/↓=Speed | H=Help | T=Telemetry",
             self.width / 2,
             controls_y,
-            arcade.color.LIGHT_GRAY,
+            TEXT_MAIN,
             11,
             anchor_x="center",
         )
@@ -497,7 +504,7 @@ class F1ReplayWindow(arcade.Window):
             center_x + 300,
             center_y - 250,
             center_y + 250,
-            (0, 0, 0, 230),
+            F1_PANEL,
         )
 
         # Border

@@ -26,11 +26,11 @@ def run_arcade_replay(
     gp: int,
     session_type: str = "R",
     drivers: Optional[list] = None,
-    hz: int = None
+    hz: int = None,
 ):
     """
     Load session data and launch the Arcade replay window.
-    
+
     Args:
         year: Season year (e.g., 2024).
         gp: Grand Prix round number.
@@ -41,39 +41,39 @@ def run_arcade_replay(
     print("=" * 60)
     print("F1 Pit Stop - Interactive Replay")
     print("=" * 60)
-    
+
     # Use config frequency if not specified
     if hz is None:
         hz = config.telemetry_frequency
-    
+
     # Step 1: Load session
     print(f"\n[1/6] Loading session: {year} Round {gp} ({session_type})")
     session = load_session(year, gp, session_type)
     session_info = get_session_info(session)
-    
+
     print(f"  ✓ Loaded: {session_info['event_name']} - {session_info['session_name']}")
     print(f"  ✓ Circuit: {session_info['circuit_name']}")
     print(f"  ✓ Drivers: {len(session_info['drivers'])}")
-    
+
     # Step 2: Get track coordinates
     print("\n[2/6] Extracting track coordinates...")
     track_coords = get_track_coordinates(session)
     print(f"  ✓ Track points: {len(track_coords)}")
-    
+
     # Step 3: Detect turns
     print("\n[3/6] Detecting turns...")
     turns = compute_turns(track_coords, session=session)
     print(f"  ✓ Detected {len(turns)} turns")
-    
+
     # Step 4: Extract driver telemetry
     print(f"\n[4/6] Extracting telemetry for drivers...")
-    
+
     # Determine which drivers to include
     if drivers:
         driver_list = [d.upper() for d in drivers]
     else:
-        driver_list = session_info['drivers']
-    
+        driver_list = session_info["drivers"]
+
     telemetry_dict = {}
     for driver_code in driver_list:
         try:
@@ -83,24 +83,28 @@ def run_arcade_replay(
             print(f"✓ ({len(telemetry)} samples)")
         except Exception as e:
             print(f"✗ Failed: {e}")
-    
+
     if not telemetry_dict:
         print("\n✗ Error: No telemetry data loaded. Cannot start replay.")
         return
-    
+
     print(f"  ✓ Loaded telemetry for {len(telemetry_dict)} drivers")
-    
+
     # Step 5: Build common timebase
     print(f"\n[5/6] Building common timebase at {hz} Hz...")
     timeline = build_common_timebase(telemetry_dict, hz=hz)
-    print(f"  ✓ Timeline: {len(timeline)} samples ({timeline[-1] - timeline[0]:.1f} seconds)")
-    
+    print(
+        f"  ✓ Timeline: {len(timeline)} samples ({timeline[-1] - timeline[0]:.1f} seconds)"
+    )
+
     # Step 6: Compute top speeds
     print("\n[6/6] Computing statistics...")
     top_speeds = compute_top_speeds(telemetry_dict)
-    if top_speeds['overall_max_driver']:
-        print(f"  ✓ Top speed: {top_speeds['overall_max']:.1f} km/h ({top_speeds['overall_max_driver']})")
-    
+    if top_speeds["overall_max_driver"]:
+        print(
+            f"  ✓ Top speed: {top_speeds['overall_max']:.1f} km/h ({top_speeds['overall_max_driver']})"
+        )
+
     # Launch Arcade window
     print("\n" + "=" * 60)
     print("Launching replay window...")
@@ -115,7 +119,7 @@ def run_arcade_replay(
     print("  0           - Reset focus")
     print("\nPress H in the window for detailed help")
     print("=" * 60 + "\n")
-    
+
     # Create and run window
     window = F1ReplayWindow(
         width=1400,
@@ -127,15 +131,16 @@ def run_arcade_replay(
         session_info=session_info,
         top_speeds=top_speeds,
     )
-    
+
     import arcade
+
     arcade.run()
 
 
 def run_api_server(host: str = "0.0.0.0", port: int = 8000):
     """
     Start the FastAPI server.
-    
+
     Args:
         host: Host address to bind to.
         port: Port number to listen on.
@@ -150,10 +155,10 @@ def run_api_server(host: str = "0.0.0.0", port: int = 8000):
     print(f"  http://{host}:{port}/api/session/2024/5/R")
     print(f"  http://{host}:{port}/api/session/2024/5/R/replay")
     print("=" * 60 + "\n")
-    
+
     import uvicorn
     from api.server import app
-    
+
     uvicorn.run(app, host=host, port=port)
 
 
@@ -175,69 +180,59 @@ Examples:
   
   # Play with only specific drivers at higher frequency
   python app.py --year 2024 --gp 5 --session R --drivers VER HAM LEC --hz 20
-        """
+        """,
     )
-    
+
     parser.add_argument(
         "--mode",
         choices=["arcade", "api"],
         default="arcade",
-        help="Run mode: 'arcade' for visualization or 'api' for server (default: arcade)"
+        help="Run mode: 'arcade' for visualization or 'api' for server (default: arcade)",
     )
-    
+
     parser.add_argument(
-        "--year",
-        type=int,
-        default=2024,
-        help="Season year (default: 2024)"
+        "--year", type=int, default=2024, help="Season year (default: 2024)"
     )
-    
+
     parser.add_argument(
-        "--gp",
-        default=5,
-        help="Grand Prix round number or name (default: 5)"
+        "--gp", default=5, help="Grand Prix round number or name (default: 5)"
     )
-    
+
     parser.add_argument(
         "--session",
         choices=["FP1", "FP2", "FP3", "Q", "S", "SQ", "R"],
         default="R",
-        help="Session type: FP1, FP2, FP3, Q (Qualifying), S (Sprint), SQ (Sprint Qualifying), R (Race) (default: R)"
+        help="Session type: FP1, FP2, FP3, Q (Qualifying), S (Sprint), SQ (Sprint Qualifying), R (Race) (default: R)",
     )
-    
+
     parser.add_argument(
         "--drivers",
         nargs="+",
-        help="Specific driver codes to include (e.g., VER HAM LEC). If not specified, includes all drivers."
+        help="Specific driver codes to include (e.g., VER HAM LEC). If not specified, includes all drivers.",
     )
-    
+
     parser.add_argument(
         "--hz",
         type=int,
-        help=f"Telemetry resampling frequency in Hz (default: {config.telemetry_frequency})"
+        help=f"Telemetry resampling frequency in Hz (default: {config.telemetry_frequency})",
     )
-    
+
     parser.add_argument(
-        "--host",
-        default="0.0.0.0",
-        help="API server host (default: 0.0.0.0)"
+        "--host", default="0.0.0.0", help="API server host (default: 0.0.0.0)"
     )
-    
+
     parser.add_argument(
-        "--port",
-        type=int,
-        default=8000,
-        help="API server port (default: 8000)"
+        "--port", type=int, default=8000, help="API server port (default: 8000)"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Convert gp to int if it's a number
     try:
         gp = int(args.gp)
     except ValueError:
         gp = args.gp
-    
+
     # Run in selected mode
     try:
         if args.mode == "arcade":
@@ -246,7 +241,7 @@ Examples:
                 gp=gp,
                 session_type=args.session,
                 drivers=args.drivers,
-                hz=args.hz
+                hz=args.hz,
             )
         elif args.mode == "api":
             run_api_server(host=args.host, port=args.port)
@@ -256,6 +251,7 @@ Examples:
     except Exception as e:
         print(f"\n✗ Error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
