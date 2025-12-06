@@ -1,0 +1,14 @@
+# Add cache directory and environment files to .gitignore
+cache/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.vscode/
+.idea/
+*.log

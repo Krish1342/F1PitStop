@@ -1,0 +1,25 @@
+# Core Formula 1 data library
+fastf1>=3.0.0
+
+# Arcade for track visualization and replay
+arcade>=2.6.17
+
+# Web API framework (optional)
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Plotting (for debugging/offline analysis)
+matplotlib>=3.7.0
+
+# Configuration management
+python-dotenv>=1.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0
